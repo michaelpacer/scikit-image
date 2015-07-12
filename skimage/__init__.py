@@ -109,3 +109,5 @@ doctest_verbose = _functools.partial(test, doctest=True, verbose=True)
 doctest_verbose.__doc__ = doctest.__doc__
 
 from .util.dtype import *
+from . import __check_build
+
