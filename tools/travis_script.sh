@@ -9,7 +9,6 @@ section_end "Test.with.min.requirements"
 
 section "Build.docs"
 if [[ ($PY != 2.6) && ($PY != 3.2) ]]; then
-    sudo apt-get install -qq texlive texlive-latex-extra dvipng
     make html
 fi
 section_end "Build.docs"
@@ -23,8 +22,6 @@ section "Install.optional.dependencies"
 
 # Install Qt and then update the Matplotlib settings
 if [[ $PY == 2.7* ]]; then
-    sudo apt-get install -q python-qt4
-
     # http://stackoverflow.com/a/9716100
     LIBS=( PyQt4 sip.so )
 
@@ -36,29 +33,26 @@ if [[ $PY == 2.7* ]]; then
 
     for LIB in ${LIBS[@]}
     do
-        sudo ln -sf $LIB_SYSTEM_PATH/$LIB $LIB_VIRTUALENV_PATH/$LIB
+        ln -sf $LIB_SYSTEM_PATH/$LIB $LIB_VIRTUALENV_PATH/$LIB
     done
 
 else
-    sudo apt-get install -q libqt4-dev
     retry pip install -q PySide $WHEELHOUSE
     python ~/venv/bin/pyside_postinstall.py -install
-fi
+fi 
 
-# imread does NOT support py3.2
+# Install imread from wheelhouse if available (not 3.2)
 if [[ $PY != 3.2 ]]; then
-    sudo apt-get install -q libtiff4-dev libwebp-dev libpng12-dev xcftools
-    retry pip  install -q imread
+    retry pip install -q $WHEELHOUSE
 fi
 
 # Install SimpleITK from wheelhouse if available (not 3.2 or 3.4)
 if [[ $PY =~ 3\.[24] ]]; then
     echo "SimpleITK unavailable on $PY"
 else
-    retry pip  install -q SimpleITK $WHEELHOUSE
+    retry pip install -q SimpleITK $WHEELHOUSE
 fi
 
-sudo apt-get install -q libfreeimage3
 retry pip install -q astropy $WHEELHOUSE
 
 if [[ $PY == 2.* ]]; then

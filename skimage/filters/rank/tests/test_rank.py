@@ -163,7 +163,7 @@ def test_bitdepth():
             expected = []
         with expected_warnings(expected):
             rank.mean_percentile(image=image, selem=elem, mask=mask,
-                               out=out, shift_x=0, shift_y=0, p0=.1, p1=.9)
+                                 out=out, shift_x=0, shift_y=0, p0=.1, p1=.9)
 
 
 def test_population():
@@ -221,6 +221,8 @@ def test_pass_on_bitdepth():
     elem = np.ones((3, 3), dtype=np.uint8)
     out = np.empty_like(image)
     mask = np.ones(image.shape, dtype=np.uint8)
+    with expected_warnings(["Bitdepth of"]):
+        rank.maximum(image=image, selem=elem, out=out, mask=mask)
 
 
 def test_inplace_output():
@@ -282,7 +284,7 @@ def test_compare_8bit_unsigned_vs_signed():
     # of dynamic) should be identical
 
     # Create signed int8 image that and convert it to uint8
-    image = img_as_ubyte(data.camera())
+    image = img_as_ubyte(data.camera())[::2, ::2]
     image[image > 127] = 0
     image_s = image.astype(np.int8)
     with expected_warnings(['sign loss', 'precision loss']):
@@ -306,7 +308,7 @@ def test_compare_8bit_vs_16bit():
     # filters applied on 8-bit image ore 16-bit image (having only real 8-bit
     # of dynamic) should be identical
 
-    image8 = util.img_as_ubyte(data.camera())
+    image8 = util.img_as_ubyte(data.camera())[::2, ::2]
     image16 = image8.astype(np.uint16)
     assert_equal(image8, image16)
 
@@ -486,8 +488,8 @@ def test_entropy():
 
     # 12 bit per pixel
     selem = np.ones((64, 64), dtype=np.uint8)
-    data = np.tile(
-        np.reshape(np.arange(4096), (64, 64)), (2, 2)).astype(np.uint16)
+    data = np.zeros((65, 65), dtype=np.uint16)
+    data[:64, :64] = np.reshape(np.arange(4096), (64, 64))
     with expected_warnings(['Bitdepth of 11']):
         assert(np.max(rank.entropy(data, selem)) == 12)
 
@@ -532,6 +534,7 @@ def test_16bit():
             assert rank.minimum(image, selem)[10, 10] == 0
             assert rank.maximum(image, selem)[10, 10] == value
             assert rank.mean(image, selem)[10, 10] == int(value / selem.size)
+
 
 def test_bilateral():
     image = np.zeros((21, 21), dtype=np.uint16)

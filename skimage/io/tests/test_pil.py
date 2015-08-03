@@ -160,7 +160,7 @@ def test_imsave_filelike():
     s = BytesIO()
 
     # save to file-like object
-    with expected_warnings(['precision loss|unclosed file',
+    with expected_warnings(['precision loss',
                             'is a low contrast image']):
         imsave(s, image)
 
@@ -191,11 +191,11 @@ def test_all_mono():
 
 
 def test_multi_page_gif():
-    img = imread(os.path.join(data_dir, 'no_time_for_that.gif'))
-    assert img.shape == (24, 280, 500, 3), img.shape
-    img2 = imread(os.path.join(data_dir, 'no_time_for_that.gif'),
+    img = imread(os.path.join(data_dir, 'no_time_for_that_tiny.gif'))
+    assert img.shape == (24, 25, 14, 3), img.shape
+    img2 = imread(os.path.join(data_dir, 'no_time_for_that_tiny.gif'),
                   img_num=5)
-    assert img2.shape == (280, 500, 3)
+    assert img2.shape == (25, 14, 3)
     assert_allclose(img[5], img2)
 
 
@@ -230,9 +230,9 @@ class TestSaveTIF:
     def roundtrip(self, dtype, x, compress):
         with temporary_file(suffix='.tif') as fname:
             if dtype == np.bool:
-                expected = ['low contrast|unclosed file']
+                expected = ['low contrast']
             else:
-                expected = ['unclosed file|\A\Z']
+                expected = ['\A\Z']
             with expected_warnings(expected):
                 if compress > 0:
                     imsave(fname, x, compress=compress)
